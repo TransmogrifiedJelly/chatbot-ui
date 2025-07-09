@@ -19,6 +19,7 @@ export async function POST(request: Request) {
       .from("profiles")
       .select("username")
       .eq("username", username)
+    console.log("Supabase query result:", usernames)
 
     if (!usernames) {
       throw new Error(error.message)

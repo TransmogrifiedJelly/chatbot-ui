@@ -34,12 +34,14 @@ export default async function Login({
   const session = (await supabase.auth.getSession()).data.session
 
   if (session) {
+    console.log("Login: session.user.id:", session.user.id)
     const { data: homeWorkspace, error } = await supabase
       .from("workspaces")
       .select("*")
       .eq("user_id", session.user.id)
       .eq("is_home", true)
       .single()
+    console.log("Login: homeWorkspace:", homeWorkspace, "error:", error)
 
     if (!homeWorkspace) {
       throw new Error(error.message)
@@ -60,6 +62,7 @@ export default async function Login({
       email,
       password
     })
+    console.log("signIn: data:", data, "error:", error)
 
     if (error) {
       return redirect(`/login?message=${error.message}`)
@@ -71,6 +74,12 @@ export default async function Login({
       .eq("user_id", data.user.id)
       .eq("is_home", true)
       .single()
+    console.log(
+      "signIn: homeWorkspace:",
+      homeWorkspace,
+      "homeWorkspaceError:",
+      homeWorkspaceError
+    )
 
     if (!homeWorkspace) {
       throw new Error(
