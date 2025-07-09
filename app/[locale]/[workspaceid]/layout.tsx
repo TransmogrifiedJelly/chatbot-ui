@@ -59,18 +59,39 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
 
   const [loading, setLoading] = useState(true)
 
+  useEffect(() => {
+    ;(async () => {
+      const session = (await supabase.auth.getSession()).data.session
+
+      if (!session) {
+        return router.push("/login")
+      } else {
+        await fetchWorkspaceData(workspaceId)
+      }
+    })()
+  }, [])
+
+  useEffect(() => {
+    ;(async () => await fetchWorkspaceData(workspaceId))()
+
+    setUserInput("")
+    setChatMessages([])
+    setSelectedChat(null)
+
+    setIsGenerating(false)
+    setFirstTokenReceived(false)
+
+    setChatFiles([])
+    setChatImages([])
+    setNewMessageFiles([])
+    setNewMessageImages([])
+    setShowFilesDisplay(false)
+  }, [workspaceId])
+
   const fetchWorkspaceData = async (workspaceId: string) => {
     setLoading(true)
 
-    let workspace
-    try {
-      console.log("Fetching workspace data for workspaceId:", workspaceId)
-      workspace = await getWorkspaceById(workspaceId)
-      console.log("Workspace data fetched successfully:", workspace)
-    } catch (error) {
-      console.error("Error fetching workspace:", error)
-      return
-    }
+    const workspace = await getWorkspaceById(workspaceId)
     setSelectedWorkspace(workspace)
 
     const assistantData = await getAssistantWorkspacesByWorkspaceId(workspaceId)
@@ -153,48 +174,6 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
 
     setLoading(false)
   }
-  useEffect(() => {
-    ;(async () => {
-      const session = (await supabase.auth.getSession()).data.session
-
-      if (!session) {
-        console.log("No session found, redirecting to login")
-        return router.push("/login")
-      } else {
-        await fetchWorkspaceData(workspaceId)
-      }
-    })()
-  }, [fetchWorkspaceData, router, workspaceId])
-
-  useEffect(() => {
-    ;(async () => await fetchWorkspaceData(workspaceId))()
-
-    setUserInput("")
-    setChatMessages([])
-    setSelectedChat(null)
-
-    setIsGenerating(false)
-    setFirstTokenReceived(false)
-
-    setChatFiles([])
-    setChatImages([])
-    setNewMessageFiles([])
-    setNewMessageImages([])
-    setShowFilesDisplay(false)
-  }, [
-    workspaceId,
-    fetchWorkspaceData,
-    setUserInput,
-    setChatMessages,
-    setSelectedChat,
-    setIsGenerating,
-    setFirstTokenReceived,
-    setChatFiles,
-    setChatImages,
-    setNewMessageFiles,
-    setNewMessageImages,
-    setShowFilesDisplay
-  ])
 
   if (loading) {
     return <Loading />
