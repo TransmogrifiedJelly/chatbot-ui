@@ -8,6 +8,7 @@ import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completion
 export const runtime: ServerRuntime = "edge"
 
 export async function POST(request: Request) {
+  console.log("OpenAI API route called")
   const json = await request.json()
   const { chatSettings, messages } = json as {
     chatSettings: ChatSettings
