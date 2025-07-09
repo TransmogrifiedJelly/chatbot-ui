@@ -1,7 +1,6 @@
 import { checkApiKey, getServerProfile } from "@/lib/server/server-chat-helpers"
 import { ChatSettings } from "@/types"
 import { ServerRuntime } from "next"
-import { ReadableStream } from "web-streams-polyfill/es2018"
 import OpenAI from "openai"
 import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions.mjs"
 
@@ -25,7 +24,7 @@ export async function POST(request: Request) {
       organization: profile.openai_organization_id
     })
 
-    const response = await openai.chat.completions.create({
+    const response = (await openai.chat.completions.create({
       model: chatSettings.model as ChatCompletionCreateParamsBase["model"],
       messages: messages as ChatCompletionCreateParamsBase["messages"],
       temperature: chatSettings.temperature,
@@ -35,9 +34,26 @@ export async function POST(request: Request) {
           ? 4096
           : null, // TODO: Fix
       stream: true
-    })
+    })) as any // TODO: Fix typing
 
-    const readableStream = ReadableStream.fromWeb(response.body)
+    const stream = response.body
+
+    if (!stream) {
+      throw new Error("OpenAI stream is undefined.")
+    }
+
+    const reader = stream[Symbol.asyncIterator]()
+
+    const readableStream = new ReadableStream({
+      async pull(controller) {
+        const { value, done } = await reader.next()
+        if (done) {
+          controller.close()
+        } else {
+          controller.enqueue(value)
+        }
+      }
+    })
 
     return new Response(readableStream, {
       headers: {

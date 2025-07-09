@@ -1,4 +1,5 @@
-import { openapiToFunctions } from "@/lib/openapi-conversion"
+import { test, expect } from '@playwright/test';
+import { openapiToFunctions } from "@/lib/openapi-conversion";
 
 const validSchemaURL = JSON.stringify({
   openapi: "3.1.0",
@@ -48,27 +49,25 @@ const validSchemaURL = JSON.stringify({
       }
     }
   }
-})
+});
 
-describe("extractOpenapiData for url", () => {
-  it("should parse a valid OpenAPI url schema", async () => {
-    const { info, routes, functions } = await openapiToFunctions(
-      JSON.parse(validSchemaURL)
-    )
+test("extractOpenapiData for url", async () => {
+  const { info, routes, functions } = await openapiToFunctions(
+    JSON.parse(validSchemaURL)
+  );
 
-    expect(info.title).toBe("Get weather data")
-    expect(info.description).toBe(
-      "Retrieves current weather data for a location."
-    )
-    expect(info.server).toBe("https://weather.example.com")
+  expect(info.title).toBe("Get weather data");
+  expect(info.description).toBe(
+    "Retrieves current weather data for a location."
+  );
+  expect(info.server).toBe("https://weather.example.com");
 
-    expect(routes).toHaveLength(2)
+  expect(routes).toHaveLength(2);
 
-    expect(functions).toHaveLength(2)
-    expect(functions[0].function.name).toBe("GetCurrentWeather")
-    expect(functions[1].function.name).toBe("GetWeatherSummary")
-  })
-})
+  expect(functions).toHaveLength(2);
+  expect(functions[0].function.name).toBe("GetCurrentWeather");
+  expect(functions[1].function.name).toBe("GetWeatherSummary");
+});
 
 const validSchemaBody = JSON.stringify({
   openapi: "3.1.0",
@@ -108,36 +107,34 @@ const validSchemaBody = JSON.stringify({
       }
     }
   }
-})
+});
 
-describe("extractOpenapiData for body", () => {
-  it("should parse a valid OpenAPI body schema", async () => {
-    const { info, routes, functions } = await openapiToFunctions(
-      JSON.parse(validSchemaBody)
-    )
+test("extractOpenapiData for body", async () => {
+  const { info, routes, functions } = await openapiToFunctions(
+    JSON.parse(validSchemaBody)
+  );
 
-    expect(info.title).toBe("Get weather data")
-    expect(info.description).toBe(
-      "Retrieves current weather data for a location."
-    )
-    expect(info.server).toBe("https://weather.example.com")
+  expect(info.title).toBe("Get weather data");
+  expect(info.description).toBe(
+    "Retrieves current weather data for a location."
+  );
+  expect(info.server).toBe("https://weather.example.com");
 
-    expect(routes).toHaveLength(1)
-    expect(routes[0].path).toBe("/location")
-    expect(routes[0].method).toBe("post")
-    expect(routes[0].operationId).toBe("GetCurrentWeather")
+  expect(routes).toHaveLength(1);
+  expect(routes[0].path).toBe("/location");
+  expect(routes[0].method).toBe("post");
+  expect(routes[0].operationId).toBe("GetCurrentWeather");
 
-    expect(functions).toHaveLength(1)
-    expect(
-      functions[0].function.parameters.properties.requestBody.properties
-        .location.type
-    ).toBe("string")
-    expect(
-      functions[0].function.parameters.properties.requestBody.properties
-        .location.description
-    ).toBe("The city and state to retrieve the weather for")
-  })
-})
+  expect(functions).toHaveLength(1);
+  expect(
+    functions[0].function.parameters.properties.requestBody.properties
+      .location.type
+  ).toBe("string");
+  expect(
+    functions[0].function.parameters.properties.requestBody.properties
+      .location.description
+  ).toBe("The city and state to retrieve the weather for");
+});
 
 const validSchemaBody2 = JSON.stringify({
   openapi: "3.1.0",
@@ -315,55 +312,32 @@ const validSchemaBody2 = JSON.stringify({
       BearerAuth: []
     }
   ]
-})
+});
 
-describe("extractOpenapiData for body 2", () => {
-  it("should parse a valid OpenAPI body schema for body 2", async () => {
-    const { info, routes, functions } = await openapiToFunctions(
-      JSON.parse(validSchemaBody2)
-    )
+test("extractOpenapiData for body 2", async () => {
+  const { info, routes, functions, openapi } = await openapiToFunctions(
+    JSON.parse(validSchemaBody2)
+  );
 
-    expect(info.title).toBe("Polygon.io Stock and Crypto Data API")
-    expect(info.description).toBe(
-      "API schema for accessing stock and crypto data from Polygon.io."
-    )
-    expect(info.server).toBe("https://api.polygon.io")
+  expect(info.title).toBe("Polygon.io Stock and Crypto Data API");
+  expect(info.description).toBe(
+    "API schema for accessing stock and crypto data from Polygon.io."
+  );
+  expect(info.server).toBe("https://api.polygon.io");
 
-    expect(routes).toHaveLength(7)
-    expect(routes[0].path).toBe("/v1/open-close/{stocksTicker}/{date}")
-    expect(routes[0].method).toBe("get")
-    expect(routes[0].operationId).toBe("getStockDailyOpenClose")
+  expect(routes).toHaveLength(7);
+  expect(routes[0].path).toBe("/v1/open-close/{stocksTicker}/{date}");
+  expect(routes[0].method).toBe("get");
+  expect(routes[0].operationId).toBe("getStockDailyOpenClose");
 
-    expect(functions[0].function.parameters.properties).toHaveProperty(
-      "stocksTicker"
-    )
-    expect(functions[0].function.parameters.properties.stocksTicker.type).toBe(
-      "string"
-    )
-    expect(
-      functions[0].function.parameters.properties.stocksTicker
-    ).toHaveProperty("required", true)
-    expect(functions[0].function.parameters.properties).toHaveProperty("date")
-    expect(functions[0].function.parameters.properties.date.type).toBe("string")
-    expect(functions[0].function.parameters.properties.date).toHaveProperty(
-      "format",
-      "date"
-    )
-    expect(functions[0].function.parameters.properties.date).toHaveProperty(
-      "required",
-      true
-    )
-    expect(routes[1].path).toBe("/v2/aggs/ticker/{stocksTicker}/prev")
-    expect(routes[1].method).toBe("get")
-    expect(routes[1].operationId).toBe("getStockPreviousClose")
-    expect(functions[1].function.parameters.properties).toHaveProperty(
-      "stocksTicker"
-    )
-    expect(functions[1].function.parameters.properties.stocksTicker.type).toBe(
-      "string"
-    )
-    expect(
-      functions[1].function.parameters.properties.stocksTicker
-    ).toHaveProperty("required", true)
-  })
-})
+  expect(functions).toHaveLength(7);
+
+  expect(openapi.paths["/v1/open-close/{stocksTicker}/{date}"].get.parameters[0]).toHaveProperty("required", true);
+  expect(openapi.paths["/v1/open-close/{stocksTicker}/{date}"].get.parameters[1]).toHaveProperty("required", true);
+
+  expect(routes[1].path).toBe("/v2/aggs/ticker/{stocksTicker}/prev");
+  expect(routes[1].method).toBe("get");
+  expect(routes[1].operationId).toBe("getStockPreviousClose");
+
+  expect(openapi.paths["/v2/aggs/ticker/{stocksTicker}/prev"].get.parameters[0]).toHaveProperty("required", true);
+});

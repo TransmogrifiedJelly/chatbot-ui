@@ -1,4 +1,4 @@
-import type { Config } from "jest"
+ import type { Config } from "jest"
 import nextJest from "next/jest.js"
 
 const createJestConfig = nextJest({
@@ -9,7 +9,8 @@ const createJestConfig = nextJest({
 // Add any custom config to be passed to Jest
 const config: Config = {
   coverageProvider: "v8",
-  testEnvironment: "jsdom"
+  testEnvironment: "jsdom",
+  testMatch: ["**/__tests__/**/*.[jt]s?(x)", "!**/__tests__/playwright-test/**/*"],
   // Add more setup options before each test is run
   // setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 }

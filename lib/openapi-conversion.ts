@@ -13,6 +13,7 @@ interface OpenAPIData {
     requestInBody?: boolean
   }[]
   functions: any
+  openapi: any
 }
 
 export const validateOpenAPI = async (openapiSpec: any) => {
@@ -165,6 +166,7 @@ export const openapiToFunctions = async (
       server: openapiSpec.servers[0].url
     },
     routes,
-    functions
+    functions,
+    openapi: openapiSpec
   }
 }

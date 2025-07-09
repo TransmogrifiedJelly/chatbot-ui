@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       })
 
       try {
-        const stream = AnthropicStream(response)
+        const stream = AnthropicStream(response as any)
         return new StreamingTextResponse(stream)
       } catch (error: any) {
         console.error("Error parsing Anthropic API response:", error)
