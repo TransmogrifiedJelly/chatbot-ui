@@ -64,6 +64,7 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
       const session = (await supabase.auth.getSession()).data.session
 
       if (!session) {
+        console.log("No session found, redirecting to login")
         return router.push("/login")
       } else {
         await fetchWorkspaceData(workspaceId)
@@ -87,11 +88,16 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
     setNewMessageImages([])
     setShowFilesDisplay(false)
   }, [workspaceId])
-
   const fetchWorkspaceData = async (workspaceId: string) => {
     setLoading(true)
 
-    const workspace = await getWorkspaceById(workspaceId)
+    let workspace
+    try {
+      workspace = await getWorkspaceById(workspaceId)
+    } catch (error) {
+      console.error("Error fetching workspace:", error)
+      return
+    }
     setSelectedWorkspace(workspace)
 
     const assistantData = await getAssistantWorkspacesByWorkspaceId(workspaceId)
