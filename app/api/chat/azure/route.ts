@@ -1,12 +1,12 @@
 import { checkApiKey, getServerProfile } from "@/lib/server/server-chat-helpers"
 import { ChatAPIPayload } from "@/types"
-import { OpenAIStream, StreamingTextResponse } from "ai"
 import OpenAI from "openai"
 import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions.mjs"
 
 export const runtime = "edge"
 
 export async function POST(request: Request) {
+  console.log("Azure API route called")
   const json = await request.json()
   const { chatSettings, messages } = json as ChatAPIPayload
 
@@ -59,9 +59,17 @@ export async function POST(request: Request) {
       stream: true
     })
 
-    const stream = OpenAIStream(response)
+    async function* AzureOpenAIStream(stream: any): AsyncIterable<any> {
+      for await (const chunk of stream) {
+        yield { content: chunk.choices[0]?.delta?.content || "" }
+      }
+    }
 
-    return new StreamingTextResponse(stream)
+    const azureStream = AzureOpenAIStream(response)
+
+    return new Response(azureStream as any, {
+      headers: { "Content-Type": "text/event-stream" }
+    })
   } catch (error: any) {
     const errorMessage = error.error?.message || "An unexpected error occurred"
     const errorCode = error.status || 500

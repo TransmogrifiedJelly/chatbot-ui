@@ -93,7 +93,9 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
 
     let workspace
     try {
+      console.log("Fetching workspace data for workspaceId:", workspaceId)
       workspace = await getWorkspaceById(workspaceId)
+      console.log("Workspace data fetched successfully:", workspace)
     } catch (error) {
       console.error("Error fetching workspace:", error)
       return
