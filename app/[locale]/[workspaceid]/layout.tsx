@@ -59,48 +59,6 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
 
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    ;(async () => {
-      const session = (await supabase.auth.getSession()).data.session
-
-      if (!session) {
-        return router.push("/login")
-      } else {
-        await fetchWorkspaceData(workspaceId)
-      }
-    })()
-  }, [])
-
-  useEffect(() => {
-    ;(async () => await fetchWorkspaceData(workspaceId))()
-
-    setUserInput("")
-    setChatMessages([])
-    setSelectedChat(null)
-
-    setIsGenerating(false)
-    setFirstTokenReceived(false)
-
-    setChatFiles([])
-    setChatImages([])
-    setNewMessageFiles([])
-    setNewMessageImages([])
-    setShowFilesDisplay(false)
-  }, [
-    workspaceId,
-    fetchWorkspaceData,
-    setChatFiles,
-    setChatImages,
-    setChatMessages,
-    setFirstTokenReceived,
-    setIsGenerating,
-    setNewMessageFiles,
-    setNewMessageImages,
-    setSelectedChat,
-    setShowFilesDisplay,
-    setUserInput
-  ])
-
   const fetchWorkspaceData = async (workspaceId: string) => {
     setLoading(true)
 
@@ -187,6 +145,48 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
 
     setLoading(false)
   }
+
+  useEffect(() => {
+    ;(async () => {
+      const session = (await supabase.auth.getSession()).data.session
+
+      if (!session) {
+        return router.push("/login")
+      } else {
+        await fetchWorkspaceData(workspaceId)
+      }
+    })()
+  }, [])
+
+  useEffect(() => {
+    ;(async () => await fetchWorkspaceData(workspaceId))()
+
+    setUserInput("")
+    setChatMessages([])
+    setSelectedChat(null)
+
+    setIsGenerating(false)
+    setFirstTokenReceived(false)
+
+    setChatFiles([])
+    setChatImages([])
+    setNewMessageFiles([])
+    setNewMessageImages([])
+    setShowFilesDisplay(false)
+  }, [
+    workspaceId,
+    fetchWorkspaceData,
+    setChatFiles,
+    setChatImages,
+    setChatMessages,
+    setFirstTokenReceived,
+    setIsGenerating,
+    setNewMessageFiles,
+    setNewMessageImages,
+    setSelectedChat,
+    setShowFilesDisplay,
+    setUserInput
+  ])
 
   if (loading) {
     return <Loading />
