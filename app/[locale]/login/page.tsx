@@ -9,6 +9,7 @@ import { get } from "@vercel/edge-config"
 import { Metadata } from "next"
 import { cookies, headers } from "next/headers"
 import { redirect } from "next/navigation"
+import { useState, useEffect } from "react"
 
 export const metadata: Metadata = {
   title: "Login"
@@ -227,4 +228,28 @@ export default async function Login({
       </form>
     </div>
   )
+}
+
+async function testDatabaseConnection() {
+  "use server"
+  try {
+    const cookieStore = cookies()
+    const supabase = createClient(cookieStore)
+
+    const { data, error } = await supabase
+      .from("workspaces")
+      .select("*")
+      .limit(1)
+
+    if (error) {
+      console.error("Database connection test failed:", error)
+      return `Database connection test failed: ${error.message}`
+    }
+
+    console.log("Database connection test successful:", data)
+    return "Database connection test successful"
+  } catch (error: any) {
+    console.error("Database connection test failed:", error)
+    return `Database connection test failed: ${error.message}`
+  }
 }

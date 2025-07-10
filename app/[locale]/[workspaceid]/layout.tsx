@@ -86,7 +86,20 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
     setNewMessageFiles([])
     setNewMessageImages([])
     setShowFilesDisplay(false)
-  }, [workspaceId])
+  }, [
+    workspaceId,
+    fetchWorkspaceData,
+    setChatFiles,
+    setChatImages,
+    setChatMessages,
+    setFirstTokenReceived,
+    setIsGenerating,
+    setNewMessageFiles,
+    setNewMessageImages,
+    setSelectedChat,
+    setShowFilesDisplay,
+    setUserInput
+  ])
 
   const fetchWorkspaceData = async (workspaceId: string) => {
     setLoading(true)
